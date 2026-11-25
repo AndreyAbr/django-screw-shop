@@ -1,0 +1,108 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Оформление заказа — КрепМастер{% endblock %}
+
+{% block content %}
+<h1 class="h2 fw-bold mb-4">Оформление заказа</h1>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-3 p-4">
+      <h2 id="checkout-heading" class="h5 fw-bold mb-3">Данные получателя и доставка</h2>
+      <form method="post" action="{% url 'shop:checkout' %}" aria-labelledby="checkout-heading">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="{{ form.full_name.id_for_label }}" class="form-label fw-semibold">
+            ФИО получателя <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+              Email <span class="text-danger" aria-hidden="true">*</span>
+            </label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label for="{{ form.phone.id_for_label }}" class="form-label fw-semibold">
+              Телефон <span class="text-danger" aria-hidden="true">*</span>
+            </label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.city.id_for_label }}" class="form-label fw-semibold">
+            Город <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          {{ form.city }}
+          {% if form.city.errors %}<div class="text-danger small mt-1">{{ form.city.errors }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold">
+            Адрес доставки <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          {{ form.address }}
+          {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors }}</div>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ form.comment.id_for_label }}" class="form-label fw-semibold">Комментарий к заказу</label>
+          {{ form.comment }}
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-brand btn-lg px-4">
+            Подтвердить заказ на {{ cart.get_total_price }} ₽
+          </button>
+          <a href="{% url 'shop:cart_detail' %}" class="btn btn-outline-secondary btn-lg">Вернуться в корзину</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-3 p-4">
+      <h2 class="h5 fw-bold mb-3">Ваш заказ</h2>
+      <ul class="list-group list-group-flush mb-3">
+        {% for item in cart %}
+          <li class="list-group-item px-0 d-flex justify-content-between align-items-start">
+            <div class="me-2">
+              <div class="fw-semibold">{{ item.product.name }}</div>
+              <div class="small text-muted">{{ item.product.size }} · {{ item.quantity }} × {{ item.price }} ₽</div>
+            </div>
+            <span class="fw-semibold text-nowrap">{{ item.total_price }} ₽</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="d-flex justify-content-between mb-1">
+        <span class="text-muted">Подытог</span>
+        <span>{{ cart.get_subtotal }} ₽</span>
+      </div>
+      {% if cart.promo_code %}
+        <div class="d-flex justify-content-between text-success mb-1">
+          <span>Скидка ({{ cart.promo_code.code }} -{{ cart.promo_code.discount_percent }}%)</span>
+          <span>−{{ cart.get_discount }} ₽</span>
+        </div>
+      {% endif %}
+      <hr>
+      <div class="d-flex justify-content-between fs-5 fw-bold">
+        <span>Итого</span>
+        <span>{{ cart.get_total_price }} ₽</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
